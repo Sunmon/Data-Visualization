@@ -20,38 +20,83 @@ export default function ScatterPlot($target) {
   };
 
   const render = dataFilter => {
-    // ctx.fillStyle = '#aaaaaa';
-    // ctx.fillRect(10, 10, 100, 100);
-    // TODO render
-    drawAxes();
-
-    // TODO: records에서 x좌표, y좌표별로 점 다 찍기
-
     if (!dataFilter?.xAxis) return;
+    if (resizeCanvas()) {
+      ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+    }
+    drawAxes();
 
     const { header, data } = this.state.records;
     const xIndex = header.indexOf(dataFilter.xAxis);
     const yIndex = header.indexOf(dataFilter.yAxis);
     const dataFilterIndex = header.indexOf(dataFilter.filter);
 
-    const normallizedData = data
+    this.valueBoundary = [
+      Math.max(...data.map(el => Math.abs(convertToNum(el[xIndex])))),
+      Math.max(...data.map(el => Math.abs(convertToNum(el[yIndex])))),
+    ];
+
+    const normalizezdData = data
       .map(entry => ({
         x: entry[xIndex],
         y: entry[yIndex],
         value: entry[dataFilterIndex],
       }))
-      .map(entry => normalizePositions(entry));
+      .map(entry => normalizeValues(entry))
+      .map(entry => convertToCoordinate(entry));
 
-    normallizedData.forEach(entry => drawDot(entry));
+    console.log(normalizezdData);
+    normalizezdData.forEach(entry => drawDot(entry));
+
+    drawDot({ x: -140.1063829787234, y: 600, value: '' });
     // console.log(data);
-    // console.log(normallizedData);
+    // console.log(normalizezdData);
     // console.log(xIndex, yIndex);
   };
 
-  const normalizePositions = entry => {
+  const resizeCanvas = () => {
+    const dpr = window.devicePixelRatio;
+    const { width, height } = calculateAdjustSize(dpr);
+    console.log($canvas.width, width, $canvas.clientWidth, dpr);
+
+    const needResize = $canvas.width !== width || $canvas.height !== height;
+    if (needResize) {
+      $canvas.width = width;
+      $canvas.height = height;
+      // ctx.scale(dpr, dpr);
+      console.log(
+        '$width, width, clientWidth: ',
+        $canvas.width,
+        width,
+        $canvas.clientWidth,
+        dpr,
+      );
+    }
+
+    return needResize;
+  };
+
+  const calculateAdjustSize = pixelRatio => {
     return {
-      x: convertToNum(entry.x),
-      y: convertToNum(entry.y),
+      width: ($canvas.clientWidth * pixelRatio) | 0, // round down
+      height: ($canvas.clientHeight * pixelRatio) | 0, // round down
+    };
+  };
+
+  // -1 ~ 1 사이의 값으로 변경하여 리턴함
+  const normalizeValues = entry => {
+    return {
+      x: convertToNum(entry.x) / this.valueBoundary[0],
+      y: convertToNum(entry.y) / this.valueBoundary[1],
+      value: entry.value,
+    };
+  };
+
+  const convertToCoordinate = entry => {
+    const center = { x: $canvas.width / 2, y: $canvas.height / 2 };
+    return {
+      x: center.x + entry.x * center.x,
+      y: center.y - entry.y * center.y,
       value: entry.value,
     };
   };
@@ -61,32 +106,34 @@ export default function ScatterPlot($target) {
   };
 
   const drawAxes = () => {
-    const x = $canvas.width;
-    const y = $canvas.height;
+    const center = { x: $canvas.width / 2, y: $canvas.height / 2 };
 
     // x축 선
     ctx.beginPath();
-    ctx.moveTo(0 + padding.x, $canvas.height - padding.y);
-    ctx.lineTo($canvas.width - padding.x, $canvas.height - padding.y);
+    ctx.moveTo(0 + padding.x, center.y);
+    ctx.lineTo($canvas.width - padding.x, center.y);
     ctx.lineWidth = 1;
     ctx.stroke();
 
     // y축 선
     ctx.beginPath();
-    ctx.moveTo($canvas.width / 2, $canvas.height - padding.y);
-    ctx.lineTo($canvas.width / 2, padding.y);
+    ctx.moveTo(center.x, $canvas.height - padding.y);
+    ctx.lineTo(center.x, padding.y);
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    drawDot({ x: 100, y: 100 });
     // console.log(x, y, $canvas.clientWidth);
   };
 
   const drawDot = ({ x, y, value }) => {
-    // normalizePositions();
-    ctx.fillStyle = '#aaee11';
+    const colors = {
+      Furniture: '#aaee11',
+      'Office Supplies': '#ee11aa',
+      Technology: '#11aaee',
+    };
+    ctx.fillStyle = colors[value] || '#555555';
     ctx.beginPath();
-    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+    ctx.arc(x, y, 2, 0, 2 * Math.PI);
     ctx.fill();
   };
 }
