@@ -86,16 +86,23 @@ export default function App($target) {
     // TODO: scatterPlot state
     // this.scatterPlot.setState(state);
 
+    const maxValues = [
+      Math.max(...trimStringRecords.map(el => Math.abs(el.x))),
+      Math.max(...trimStringRecords.map(el => Math.abs(el.y))),
+    ];
+
     this.scatterPlot.setState({
       boundary: {
-        x: [
-          -Math.max(...trimStringRecords.map(el => el.x)),
-          Math.max(...trimStringRecords.map(el => el.x)),
-        ],
-        y: [
-          -Math.max(...trimStringRecords.map(el => el.y)),
-          Math.max(...trimStringRecords.map(el => el.y)),
-        ],
+        x: [-maxValues[0], maxValues[0]],
+        y: [-maxValues[1], maxValues[1]],
+        // x: [
+        //   -Math.max(...trimStringRecords.map(el => Math.abs(el.x))),
+        //   Math.max(...trimStringRecords.map(el => Math.abs(el.x))),
+        // ],
+        // y: [
+        //   -Math.max(...trimStringRecords.map(el => el.y)),
+        //   Math.max(...trimStringRecords.map(el => el.y)),
+        // ],
       },
       dataFilter: state.dataFilter,
       records: trimStringRecords,

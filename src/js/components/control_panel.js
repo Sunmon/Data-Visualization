@@ -27,11 +27,6 @@ export default function ControlPanel($target) {
     $('.axis-data__x').innerHTML = `x축: ${dataFilter.xAxis}`;
     $('.axis-data__y').innerHTML = `y축: ${dataFilter.yAxis}`;
     $('.axis-data__filter').innerHTML = `범주: ${dataFilter.filter}`;
-    // this.$axisData.querySelector(
-    //   '.axis-data__x',
-    // ).innerHTML = `x축: ${dataFilter.xAxis}`;
-
-    // this.$axisData.querySelector();
   };
 
   const renderMenuItem = (menu, $menuList) => {
