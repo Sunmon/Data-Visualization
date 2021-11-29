@@ -1,42 +1,17 @@
-const TEMPLATE = name => `<li>${name}</li>`;
+const TEMPLATE = name =>
+  `<li class='menu-item'><span><span class='icon'>●</span>${name}</span></li>`;
 
 export default function ControlPanel($target) {
   const $panel = $target;
-  this.$menuList = '';
+  this.$menuList = $panel.querySelector('ul');
 
-  this.init = () => {
-    this.$menuList = $panel.querySelector('ul');
-  };
-
-  this.setState = ({ dataFilter }) => {
-    // this.state = state;
+  this.setState = ({ dataFilter, menuItems, getColor }) => {
     this.dataFilter = dataFilter;
-  };
+    this.menuItems = menuItems;
+    this.getColor = getColor;
 
-  //   $template.innerHTML = `
-  //       <li class="menu-list-item d-flex items-center py-2">
-  //       <span class="w-100 pl-2 menu-name ${
-  //         isSoldOut ? 'sold-out' : ''
-  //       } ">${name}</span>
-  //       <button
-  //         type="button"
-  //         class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
-  //       >
-  //         품절
-  //       </button>
-  //       <button
-  //         type="button"
-  //         class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button"
-  //       >
-  //         수정
-  //       </button>
-  //       <button
-  //         type="button"
-  //         class="bg-gray-50 text-gray-500 text-sm menu-remove-button"
-  //       >
-  //         삭제
-  //       </button>
-  //     </li>`;
+    render(menuItems);
+  };
 
   const render = menuItems => {
     this.$menuList.innerHTML = '';
@@ -50,7 +25,8 @@ export default function ControlPanel($target) {
 
   const createMenuItemTemplate = item => {
     const $template = document.createElement('template');
-    $template.innerHTML = TEMPLATE('asdf');
+    $template.innerHTML = TEMPLATE(item);
+    $template.content.querySelector('.icon').style.color = this.getColor(item);
 
     return $template;
   };

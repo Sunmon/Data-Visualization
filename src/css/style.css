@@ -5,3 +5,7 @@
 #control-panel {
   border: 1px solid red;
 }
+
+.menu-item {
+  list-style: none;
+}

@@ -7,10 +7,11 @@ export default function ScatterPlot($target) {
   this.records = [];
   this.boundary = {};
 
-  this.setState = ({ boundary, dataFilter, records }) => {
+  this.setState = ({ boundary, dataFilter, records, getColor }) => {
     this.dataFilter = dataFilter;
     this.records = records;
     this.boundary = boundary;
+    this.getColor = getColor;
 
     render();
   };
@@ -22,7 +23,6 @@ export default function ScatterPlot($target) {
       .map(record => normalizeValues(record))
       .map(normRecord => convertToCoordinate(normRecord));
 
-    // console.log('coor: ', coordinates);
     coordinates.forEach(coor => drawDot(coor));
   };
 
@@ -62,12 +62,7 @@ export default function ScatterPlot($target) {
   };
 
   const drawDot = ({ x, y, value }) => {
-    const colors = {
-      Furniture: '#aaee11',
-      'Office Supplies': '#ee11aa',
-      Technology: '#11aaee',
-    };
-    ctx.fillStyle = colors[value] || '#555555';
+    ctx.fillStyle = this.getColor(value) || '#555555';
     ctx.beginPath();
     ctx.arc(x, y, 2, 0, 2 * Math.PI);
     ctx.fill();

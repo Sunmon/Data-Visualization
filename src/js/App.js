@@ -3,6 +3,18 @@ import ControlPanel from './components/control_panel';
 import ScatterPlot from './components/scatter_plot';
 import Store from './store/store';
 
+const COLORS = [
+  '#DC143C',
+  '#FFA500',
+  '#808000',
+  '#0000FF',
+  '#9932CC',
+  '#7FFF00',
+  '#FF1493',
+  '#FFD700',
+  '#696969',
+];
+
 const INITIAL_STATE = {
   xAxis: [-100, 100],
   yAxis: [0, 100],
@@ -26,6 +38,7 @@ export default function App($target) {
     yAxis: [],
     // dataFilter: {}
     dataFilter: {},
+    colors: {},
   };
 
   this.init = () => {
@@ -38,9 +51,27 @@ export default function App($target) {
 
   const fetchData = async () => {
     const records = await this.store.fetchData();
-    const state = { ...this.state, records };
+    const colors = getColor();
+    const value = records.header.indexOf(this.state.dataFilter.filter);
+    records.data.forEach(record => colors(record[value]));
+    // .map(record => record.data[this.state.dataFilter.filter])
+
+    const state = { ...this.state, records, colors };
+    // console.log('record color: ', colors('Furniture'));
+    // const colors = records.map(record => record.data[this.state.dataFilter.filter]).forEach()
 
     this.setState(state);
+  };
+
+  const getColor = () => {
+    let i = 0;
+    const colors = {};
+
+    return name => {
+      if (colors[name]) return colors[name];
+      colors[name] = COLORS[i++];
+      return colors[name];
+    };
   };
 
   this.setState = state => {
@@ -50,7 +81,7 @@ export default function App($target) {
     console.log('app: ', state.records);
     if (!state.records?.header?.length) return;
 
-    const records = numberedRecords(state.records);
+    const trimStringRecords = numberedRecords(state.records);
 
     // TODO: scatterPlot state
     // this.scatterPlot.setState(state);
@@ -58,20 +89,31 @@ export default function App($target) {
     this.scatterPlot.setState({
       boundary: {
         x: [
-          -Math.max(...records.map(el => el.x)),
-          Math.max(...records.map(el => el.x)),
+          -Math.max(...trimStringRecords.map(el => el.x)),
+          Math.max(...trimStringRecords.map(el => el.x)),
         ],
         y: [
-          -Math.max(...records.map(el => el.y)),
-          Math.max(...records.map(el => el.y)),
+          -Math.max(...trimStringRecords.map(el => el.y)),
+          Math.max(...trimStringRecords.map(el => el.y)),
         ],
       },
       dataFilter: state.dataFilter,
-      records,
+      records: trimStringRecords,
+      getColor: state.colors,
     });
 
     // TODO:
+    const value = state.records.header.indexOf(state.dataFilter.filter);
+    // ...new Set(array)
+    const valueItems = [
+      ...new Set(state.records.data.map(record => record[value])),
+    ];
     // this.controlPanel.setState(state);
+    this.controlPanel.setState({
+      dataFilter: state.dataFilter,
+      menuItems: valueItems,
+      getColor: state.colors,
+    });
   };
 
   /**
