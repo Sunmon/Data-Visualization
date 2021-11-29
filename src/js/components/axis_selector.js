@@ -3,11 +3,10 @@ const SELECTOR_TEMPLATE = (name, selected) =>
 const OPTIONS_Y = ['Profit', 'Quantity', 'Sales', 'Discount'];
 const OPTIONS_FILTER = [
   'Category',
-  'City',
-  'Manufacturer',
   'Region',
   'Segment',
-  'Ship Mode',
+  'City',
+  'Manufacturer',
   'State',
   'Sub-Category',
 ];
@@ -15,8 +14,13 @@ const OPTIONS_FILTER = [
 export default function AxisSelector($target, { dataFilter, onChange }) {
   const $selector = $target;
   const $ = selector => $selector.querySelector(selector);
-  this.$selectY = $('#select-y');
-  this.$selectY.addEventListener('change', e => onChange(this.$selectY.value));
+  const $selectY = $('#select-y');
+  const $selectFilter = $('#select-filter');
+
+  $selectY.addEventListener('change', e => onChange($selectY.value, 'yAxis'));
+  $selectFilter.addEventListener('change', e =>
+    onChange($selectFilter.value, 'filter'),
+  );
 
   this.setState = ({ dataFilter }) => {
     this.dataFilter = dataFilter;
@@ -27,21 +31,28 @@ export default function AxisSelector($target, { dataFilter, onChange }) {
   const render = () => {
     // $('#axis-y').
     // this.$menuList.innerHtml
-    this.$selectY.innerHTML = '';
-    OPTIONS_Y.forEach(item => renderMenuItem(item, this.$selectY));
+    $selectY.innerHTML = '';
+    $selectFilter.innerHTML = '';
+
+    OPTIONS_Y.forEach(item => renderMenuItem(item, 'yAxis'));
+    OPTIONS_FILTER.forEach(item => renderMenuItem(item, 'filter'));
     // renderMenuItem();
   };
 
-  const renderMenuItem = (menu, $menuList) => {
-    const $menuItem = createMenuItemTemplate(menu).content;
-    $menuList.append($menuItem);
+  const renderMenuItem = (menu, category) => {
+    const $menuList = {
+      yAxis: $selectY,
+      filter: $selectFilter,
+    };
+    const $menuItem = createMenuItemTemplate(menu, category).content;
+    $menuList[category].append($menuItem);
   };
 
-  const createMenuItemTemplate = item => {
+  const createMenuItemTemplate = (item, category) => {
     const $template = document.createElement('template');
     $template.innerHTML = SELECTOR_TEMPLATE(
       item,
-      this.dataFilter.yAxis === item,
+      this.dataFilter[category] === item,
     );
     // $template.contains.querySelector('option').classList.
     // $template.content.querySelector('option')

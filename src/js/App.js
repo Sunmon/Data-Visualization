@@ -1,4 +1,3 @@
-// import ScatterPlot from './components/scatter_plot';
 import ControlPanel from './components/control_panel';
 import ScatterPlot from './components/scatter_plot';
 import AxisSelector from './components/axis_selector';
@@ -8,12 +7,19 @@ const COLORS = [
   '#DC143C',
   '#FFA500',
   '#808000',
+  '#1f2612',
+  '#e61e29',
   '#0000FF',
   '#9932CC',
+  '#FFD700',
   '#7FFF00',
   '#FF1493',
-  '#FFD700',
   '#696969',
+  '#126129',
+  '#886129',
+  '#991129',
+  '#f26129',
+  '#1c6ccc',
 ];
 
 const INITIAL_STATE = {
@@ -22,8 +28,7 @@ const INITIAL_STATE = {
   dataFilter: {
     xAxis: 'Profit Ratio',
     yAxis: 'Profit',
-    // yAxis: 'Quantity',
-    filter: 'Region',
+    filter: 'Category',
   },
   records: {
     header: [],
@@ -37,11 +42,9 @@ export default function App($target) {
   const $axisSelector = document.querySelector('#axis-selector');
 
   this.state = {
-    xAxis: [], // TODO: xAxis는 데이터의 max, min으로 바뀔 것
+    xAxis: [],
     yAxis: [],
-    // dataFilter: {}
     dataFilter: {},
-    colors: {},
   };
 
   this.init = () => {
@@ -50,10 +53,10 @@ export default function App($target) {
     this.controlPanel = new ControlPanel($controlPanel);
     this.axisSelector = new AxisSelector($axisSelector, {
       dataFilter: this.state.dataFilter,
-      onChange: select => {
+      onChange: (select, category) => {
         const state = {
           ...this.state,
-          dataFilter: { ...this.state.dataFilter, yAxis: select },
+          dataFilter: { ...this.state.dataFilter, [category]: select },
         };
         this.setState(state);
       },
@@ -64,12 +67,9 @@ export default function App($target) {
 
   const fetchData = async () => {
     const records = await this.store.fetchData();
-    const colors = getColor();
     const value = records.header.indexOf(this.state.dataFilter.filter);
-    records.data.forEach(record => colors(record[value]));
-    // .map(record => record.data[this.state.dataFilter.filter])
 
-    const state = { ...this.state, records, colors };
+    const state = { ...this.state, records };
     resizeCanvas();
 
     // console.log('record color: ', colors('Furniture'));
@@ -78,14 +78,17 @@ export default function App($target) {
     this.setState(state);
   };
 
-  const getColor = () => {
+  const getColor = category => {
     let i = 0;
     const colors = {};
+    if (!colors[category]) colors[category] = {};
 
     return name => {
-      if (colors[name]) return colors[name];
-      colors[name] = COLORS[i++];
-      return colors[name];
+      if (colors[category][name]) return colors[category][name];
+      colors[category][name] = COLORS[i];
+      i = (i + 1) % COLORS.length;
+
+      return colors[category][name];
     };
   };
 
@@ -109,31 +112,21 @@ export default function App($target) {
       boundary: {
         x: [-maxValues[0], maxValues[0]],
         y: [-maxValues[1], maxValues[1]],
-        // x: [
-        //   -Math.max(...trimStringRecords.map(el => Math.abs(el.x))),
-        //   Math.max(...trimStringRecords.map(el => Math.abs(el.x))),
-        // ],
-        // y: [
-        //   -Math.max(...trimStringRecords.map(el => el.y)),
-        //   Math.max(...trimStringRecords.map(el => el.y)),
-        // ],
       },
       dataFilter: state.dataFilter,
       records: trimStringRecords,
-      getColor: state.colors,
+      getColor: getColor(state.dataFilter),
     });
 
     // TODO:
     const value = state.records.header.indexOf(state.dataFilter.filter);
-    // ...new Set(array)
     const valueItems = [
       ...new Set(state.records.data.map(record => record[value])),
     ];
-    // this.controlPanel.setState(state);
     this.controlPanel.setState({
       dataFilter: state.dataFilter,
       menuItems: valueItems,
-      getColor: state.colors,
+      getColor: getColor(state.dataFilter),
     });
 
     this.axisSelector.setState({ dataFilter: this.state.dataFilter });
