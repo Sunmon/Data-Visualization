@@ -141,7 +141,6 @@ export default function App($target) {
     const y = records.header.indexOf(this.state.dataFilter.yAxis);
     const value = records.header.indexOf(this.state.dataFilter.filter);
 
-    console.log('numberedRecords: ', records);
     return records.data.map(record => {
       return {
         x: convertToNum(record[x]),
