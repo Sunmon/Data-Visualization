@@ -2,25 +2,7 @@ import ControlPanel from './components/control_panel';
 import ScatterPlot from './components/scatter_plot';
 import AxisSelector from './components/axis_selector';
 import Store from './store/store';
-
-const COLORS = [
-  '#DC143C',
-  '#FFA500',
-  '#808000',
-  '#1f2612',
-  '#e61e29',
-  '#0000FF',
-  '#9932CC',
-  '#FFD700',
-  '#7FFF00',
-  '#FF1493',
-  '#696969',
-  '#126129',
-  '#886129',
-  '#991129',
-  '#f26129',
-  '#1c6ccc',
-];
+import { COLORS } from './lib/constants';
 
 const INITIAL_STATE = {
   xAxis: [-100, 100],
@@ -45,6 +27,7 @@ export default function App($target) {
     xAxis: [],
     yAxis: [],
     dataFilter: {},
+    records: { header: [], data: [] },
   };
 
   this.init = () => {
@@ -53,22 +36,23 @@ export default function App($target) {
     this.controlPanel = new ControlPanel($controlPanel);
     this.axisSelector = new AxisSelector($axisSelector, {
       dataFilter: this.state.dataFilter,
-      onChange: (select, category) => {
-        const state = {
-          ...this.state,
-          dataFilter: { ...this.state.dataFilter, [category]: select },
-        };
-        this.setState(state);
-      },
+      onChange: setDataFilter,
     });
     this.setState(INITIAL_STATE);
+
     fetchData();
+  };
+
+  const setDataFilter = (select, category) => {
+    const state = {
+      ...this.state,
+      dataFilter: { ...this.state.dataFilter, [category]: select },
+    };
+    this.setState(state);
   };
 
   const fetchData = async () => {
     const records = await this.store.fetchData();
-    const value = records.header.indexOf(this.state.dataFilter.filter);
-
     const state = { ...this.state, records };
     resizeCanvas();
 
@@ -76,8 +60,8 @@ export default function App($target) {
   };
 
   const getColor = category => {
-    let i = 0;
     const colors = {};
+    let i = 0;
     if (!colors[category]) colors[category] = {};
 
     return name => {

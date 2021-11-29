@@ -1,9 +1,10 @@
+import { hasValue } from '../lib/utility';
+
 export default function ScatterPlot($target) {
   const $canvas = $target;
   const ctx = $target.getContext('2d');
   const padding = { x: 0, y: 0 };
   this.center = {};
-
   this.dataFilter = {};
   this.records = [];
   this.boundary = {};
@@ -25,7 +26,6 @@ export default function ScatterPlot($target) {
     const coordinates = this.records
       .map(record => normalizeValues(record))
       .map(normRecord => convertToCoordinate(normRecord));
-
     coordinates.forEach(coor => drawDot(coor));
   };
 
@@ -35,11 +35,11 @@ export default function ScatterPlot($target) {
 
   const normalizeValues = entry => {
     const obj = {};
-    if (entry.x || entry.x === 0)
+    if (hasValue(entry.x))
       obj.x = (2 * entry.x) / (this.boundary.x[1] - this.boundary.x[0]);
-    if (entry.y || entry.y === 0)
+    if (hasValue(entry.y))
       obj.y = (2 * entry.y) / (this.boundary.y[1] - this.boundary.y[0]);
-    if (entry.value) obj.value = entry.value;
+    if (hasValue(entry.value)) obj.value = entry.value;
 
     return obj;
   };
@@ -47,46 +47,54 @@ export default function ScatterPlot($target) {
   const convertToCoordinate = entry => {
     const { center } = this;
     const obj = {};
-    if (entry.x || entry.x === 0) obj.x = center.x + entry.x * center.x;
-    if (entry.y || entry.y === 0) obj.y = center.y - entry.y * center.y;
-    if (entry.value) obj.value = entry.value;
+    if (hasValue(entry.x)) obj.x = center.x + entry.x * center.x;
+    if (hasValue(entry.y)) obj.y = center.y - entry.y * center.y;
+    if (hasValue(entry.value)) obj.value = entry.value;
 
     return obj;
   };
 
   const drawAxes = () => {
     const { center } = this;
+    resetColor();
+    drawXAxis(center);
+    drawYAxis(center);
+    drawBaseLines();
+  };
 
+  const resetColor = () => {
     ctx.strokeStyle = 'black';
     ctx.fillStyle = 'black';
+  };
 
-    // x축 선
+  const drawXAxis = center => {
     ctx.beginPath();
     ctx.moveTo(0 + padding.x, center.y);
     ctx.lineTo($canvas.width - padding.x, center.y);
     ctx.lineWidth = 1;
     ctx.stroke();
+    ctx.fillText(this.dataFilter.xAxis, $canvas.width - 50, center.y + 50);
+  };
 
-    // y축 선
+  const drawYAxis = center => {
     ctx.beginPath();
     ctx.moveTo(center.x, $canvas.height - padding.y);
     ctx.lineTo(center.x, padding.y);
     ctx.lineWidth = 1;
     ctx.stroke();
-
-    drawBaseLines();
+    ctx.fillText(this.dataFilter.yAxis, center.x - 50, 50);
   };
 
   const getBases = () => {
     const bases = { x: [], y: [] };
-    const gapX = (this.boundary.x[1] - this.boundary.x[0]) / 20;
-    const gapY = (this.boundary.y[1] - this.boundary.y[0]) / 20;
+    const { boundary } = this;
+    const gapX = (boundary.x[1] - boundary.x[0]) / 20;
+    const gapY = (boundary.y[1] - boundary.y[0]) / 20;
 
-    for (let x = this.boundary.x[0]; x <= this.boundary.x[1]; x += gapX) {
+    for (let x = boundary.x[0]; x <= boundary.x[1]; x += gapX) {
       bases.x.push(x);
     }
-
-    for (let y = this.boundary.y[0]; y <= this.boundary.y[1]; y += gapY) {
+    for (let y = boundary.y[0]; y <= boundary.y[1]; y += gapY) {
       bases.y.push(y);
     }
 

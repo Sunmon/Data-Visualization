@@ -1,15 +1,7 @@
+import { OPTIONS_Y, OPTIONS_FILTER } from '../lib/constants';
+
 const SELECTOR_TEMPLATE = (name, selected) =>
   `<option value=${name} ${selected ? 'selected' : ''}>${name}</option>`;
-const OPTIONS_Y = ['Profit', 'Quantity', 'Sales', 'Discount'];
-const OPTIONS_FILTER = [
-  'Category',
-  'Region',
-  'Segment',
-  'City',
-  'Manufacturer',
-  'State',
-  'Sub-Category',
-];
 
 export default function AxisSelector($target, { dataFilter, onChange }) {
   const $selector = $target;
@@ -24,14 +16,12 @@ export default function AxisSelector($target, { dataFilter, onChange }) {
 
   this.setState = ({ dataFilter }) => {
     this.dataFilter = dataFilter;
-
     render();
   };
 
   const render = () => {
     $selectY.innerHTML = '';
     $selectFilter.innerHTML = '';
-
     OPTIONS_Y.forEach(item => renderMenuItem(item, 'yAxis'));
     OPTIONS_FILTER.forEach(item => renderMenuItem(item, 'filter'));
   };
