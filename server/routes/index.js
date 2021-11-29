@@ -10,6 +10,7 @@ const PROJECT_ROOT = path.resolve('./');
 router.get('/csv', async (req, res) => {
   console.log('csv init');
   const dir = path.resolve('assets', 'mini_data.csv');
+  // const dir = path.resolve('assets', 'data2.csv');
   const file = await fs.readFile(dir, 'utf-8');
   const records = [];
   const parser = parse({

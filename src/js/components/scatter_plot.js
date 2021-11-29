@@ -3,24 +3,61 @@ export default function ScatterPlot($target) {
   const ctx = $target.getContext('2d');
   const padding = { x: 10, y: 10 };
 
-  this.xAxis = '';
-  this.yAxis = '';
+  this.state = {
+    xAxis: '',
+    yAxis: '',
+    dataFilter: {},
+    records: [],
+  };
 
-  this.setState = ({ xAxis, yAxis, dataFilter }) => {
-    //   this.setState = () => {
-    this.xAxis = xAxis;
-    this.yAxis = yAxis;
-    // this.ctx = $target.getContext('2d');
-    render();
+  this.setState = state => {
+    this.state = state;
+    if (state.records) {
+      render(state.dataFilter);
+    } else {
+      render();
+    }
   };
 
   const render = dataFilter => {
-    ctx.fillStyle = '#aaaaaa';
-    console.log(ctx);
-    ctx.fillRect(10, 10, 100, 100);
+    // ctx.fillStyle = '#aaaaaa';
+    // ctx.fillRect(10, 10, 100, 100);
     // TODO render
-    console.log('hello world!');
     drawAxes();
+
+    // TODO: records에서 x좌표, y좌표별로 점 다 찍기
+
+    if (!dataFilter?.xAxis) return;
+
+    const { header, data } = this.state.records;
+    const xIndex = header.indexOf(dataFilter.xAxis);
+    const yIndex = header.indexOf(dataFilter.yAxis);
+    const dataFilterIndex = header.indexOf(dataFilter.filter);
+
+    const normallizedData = data
+      .map(entry => ({
+        x: entry[xIndex],
+        y: entry[yIndex],
+        value: entry[dataFilterIndex],
+      }))
+      .map(entry => normalizePositions(entry));
+
+    normallizedData.forEach(entry => drawDot(entry));
+    // console.log(data);
+    // console.log(normallizedData);
+    // console.log(xIndex, yIndex);
+  };
+
+  const normalizePositions = entry => {
+    return {
+      x: convertToNum(entry.x),
+      y: convertToNum(entry.y),
+      value: entry.value,
+    };
+  };
+
+  const convertToNum = str => {
+    return Number(str.replace(/[^0-9.-]+/g, ''));
   };
 
   const drawAxes = () => {
@@ -45,7 +82,7 @@ export default function ScatterPlot($target) {
     // console.log(x, y, $canvas.clientWidth);
   };
 
-  const drawDot = ({ x, y }) => {
+  const drawDot = ({ x, y, value }) => {
     // normalizePositions();
     ctx.fillStyle = '#aaee11';
     ctx.beginPath();
