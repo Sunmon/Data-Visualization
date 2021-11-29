@@ -1,95 +1,29 @@
 export default function ScatterPlot($target) {
   const $canvas = $target;
   const ctx = $target.getContext('2d');
-  const padding = { x: 10, y: 10 };
+  const padding = { x: 0, y: 0 };
 
-  this.state = {
-    xAxis: '',
-    yAxis: '',
-    dataFilter: {},
-    records: [],
+  this.dataFilter = {};
+  this.records = [];
+  this.boundary = {};
+
+  this.setState = ({ boundary, dataFilter, records }) => {
+    this.dataFilter = dataFilter;
+    this.records = records;
+    this.boundary = boundary;
+
+    render();
   };
 
-  this.setState = state => {
-    this.state = state;
-    if (state.records) {
-      render(state.dataFilter);
-    } else {
-      render();
-    }
-  };
-
-  const render = dataFilter => {
-    if (!dataFilter?.xAxis) return;
-    if (resizeCanvas()) {
-      ctx.clearRect(0, 0, $canvas.width, $canvas.height);
-    }
+  const render = () => {
     drawAxes();
 
-    const { header, data } = this.state.records;
-    const xIndex = header.indexOf(dataFilter.xAxis);
-    const yIndex = header.indexOf(dataFilter.yAxis);
-    const dataFilterIndex = header.indexOf(dataFilter.filter);
+    const coordinates = this.records
+      .map(record => normalizeValues(record))
+      .map(normRecord => convertToCoordinate(normRecord));
 
-    this.valueBoundary = [
-      Math.max(...data.map(el => Math.abs(convertToNum(el[xIndex])))),
-      Math.max(...data.map(el => Math.abs(convertToNum(el[yIndex])))),
-    ];
-
-    const normalizezdData = data
-      .map(entry => ({
-        x: entry[xIndex],
-        y: entry[yIndex],
-        value: entry[dataFilterIndex],
-      }))
-      .map(entry => normalizeValues(entry))
-      .map(entry => convertToCoordinate(entry));
-
-    console.log(normalizezdData);
-    normalizezdData.forEach(entry => drawDot(entry));
-
-    drawDot({ x: -140.1063829787234, y: 600, value: '' });
-    // console.log(data);
-    // console.log(normalizezdData);
-    // console.log(xIndex, yIndex);
-  };
-
-  const resizeCanvas = () => {
-    const dpr = window.devicePixelRatio;
-    const { width, height } = calculateAdjustSize(dpr);
-    console.log($canvas.width, width, $canvas.clientWidth, dpr);
-
-    const needResize = $canvas.width !== width || $canvas.height !== height;
-    if (needResize) {
-      $canvas.width = width;
-      $canvas.height = height;
-      // ctx.scale(dpr, dpr);
-      console.log(
-        '$width, width, clientWidth: ',
-        $canvas.width,
-        width,
-        $canvas.clientWidth,
-        dpr,
-      );
-    }
-
-    return needResize;
-  };
-
-  const calculateAdjustSize = pixelRatio => {
-    return {
-      width: ($canvas.clientWidth * pixelRatio) | 0, // round down
-      height: ($canvas.clientHeight * pixelRatio) | 0, // round down
-    };
-  };
-
-  // -1 ~ 1 사이의 값으로 변경하여 리턴함
-  const normalizeValues = entry => {
-    return {
-      x: convertToNum(entry.x) / this.valueBoundary[0],
-      y: convertToNum(entry.y) / this.valueBoundary[1],
-      value: entry.value,
-    };
+    // console.log('coor: ', coordinates);
+    coordinates.forEach(coor => drawDot(coor));
   };
 
   const convertToCoordinate = entry => {
@@ -101,8 +35,12 @@ export default function ScatterPlot($target) {
     };
   };
 
-  const convertToNum = str => {
-    return Number(str.replace(/[^0-9.-]+/g, ''));
+  const normalizeValues = entry => {
+    return {
+      x: entry.x / (this.boundary.x[1] - this.boundary.x[0]),
+      y: entry.y / (this.boundary.y[1] - this.boundary.y[0]),
+      value: entry.value,
+    };
   };
 
   const drawAxes = () => {
@@ -121,8 +59,6 @@ export default function ScatterPlot($target) {
     ctx.lineTo(center.x, padding.y);
     ctx.lineWidth = 1;
     ctx.stroke();
-
-    // console.log(x, y, $canvas.clientWidth);
   };
 
   const drawDot = ({ x, y, value }) => {
