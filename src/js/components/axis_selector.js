@@ -29,14 +29,11 @@ export default function AxisSelector($target, { dataFilter, onChange }) {
   };
 
   const render = () => {
-    // $('#axis-y').
-    // this.$menuList.innerHtml
     $selectY.innerHTML = '';
     $selectFilter.innerHTML = '';
 
     OPTIONS_Y.forEach(item => renderMenuItem(item, 'yAxis'));
     OPTIONS_FILTER.forEach(item => renderMenuItem(item, 'filter'));
-    // renderMenuItem();
   };
 
   const renderMenuItem = (menu, category) => {
@@ -54,8 +51,6 @@ export default function AxisSelector($target, { dataFilter, onChange }) {
       item,
       this.dataFilter[category] === item,
     );
-    // $template.contains.querySelector('option').classList.
-    // $template.content.querySelector('option')
 
     return $template;
   };

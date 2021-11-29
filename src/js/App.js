@@ -72,9 +72,6 @@ export default function App($target) {
     const state = { ...this.state, records };
     resizeCanvas();
 
-    // console.log('record color: ', colors('Furniture'));
-    // const colors = records.map(record => record.data[this.state.dataFilter.filter]).forEach()
-
     this.setState(state);
   };
 
@@ -94,15 +91,9 @@ export default function App($target) {
 
   this.setState = state => {
     this.state = state;
-
-    console.log('app: ', state.records);
     if (!state.records?.header?.length) return;
 
     const trimStringRecords = numberedRecords(state.records);
-
-    // TODO: scatterPlot state
-    // this.scatterPlot.setState(state);
-
     const maxValues = [
       Math.max(...trimStringRecords.map(el => Math.abs(el.x))),
       Math.max(...trimStringRecords.map(el => Math.abs(el.y))),
@@ -118,11 +109,11 @@ export default function App($target) {
       getColor: getColor(state.dataFilter),
     });
 
-    // TODO:
     const value = state.records.header.indexOf(state.dataFilter.filter);
     const valueItems = [
       ...new Set(state.records.data.map(record => record[value])),
     ];
+
     this.controlPanel.setState({
       dataFilter: state.dataFilter,
       menuItems: valueItems,
@@ -131,12 +122,6 @@ export default function App($target) {
 
     this.axisSelector.setState({ dataFilter: this.state.dataFilter });
   };
-
-  /**
-   *
-   * @param {*} pixelRatio
-   * @returns
-   */
 
   const calculateAdjustSize = pixelRatio => {
     return {
@@ -159,15 +144,6 @@ export default function App($target) {
     });
   };
 
-  // -1 ~ 1 사이의 값으로 변경하여 리턴함
-  // const normalizeValues = entry => {
-  //   return {
-  //     x: convertToNum(entry.x) / this.valueBoundary[0],
-  //     y: convertToNum(entry.y) / this.valueBoundary[1],
-  //     value: entry.value,
-  //   };
-  // };
-
   const convertToNum = str => {
     return Number(str.replace(/[^0-9.-]+/g, ''));
   };
@@ -175,29 +151,11 @@ export default function App($target) {
   const resizeCanvas = () => {
     const dpr = window.devicePixelRatio;
     const { width, height } = calculateAdjustSize(dpr);
-    console.log($canvas.width, width, $canvas.clientWidth, dpr);
-
     const needResize = $canvas.width !== width || $canvas.height !== height;
-    console.log(
-      'needResize? ',
-      needResize,
-      $canvas.width,
-      width,
-      ',',
-      $canvas.height,
-      height,
-    );
+
     if (needResize) {
       $canvas.width = width;
       $canvas.height = height;
-      // $canvas.getContext('2d').scale(dpr, dpr);
-      console.log(
-        '$width, width, clientWidth: ',
-        $canvas.width,
-        width,
-        $canvas.clientWidth,
-        dpr,
-      );
     }
 
     return needResize;

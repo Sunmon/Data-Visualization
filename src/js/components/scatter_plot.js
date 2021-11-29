@@ -12,7 +12,6 @@ export default function ScatterPlot($target) {
     this.dataFilter = dataFilter;
     this.records = records;
     this.boundary = boundary;
-    console.log('state boundary: ', boundary);
     this.getColor = getColor;
     this.center = { x: $canvas.width / 2, y: $canvas.height / 2 };
 
@@ -60,6 +59,7 @@ export default function ScatterPlot($target) {
 
     ctx.strokeStyle = 'black';
     ctx.fillStyle = 'black';
+
     // x축 선
     ctx.beginPath();
     ctx.moveTo(0 + padding.x, center.y);
@@ -104,7 +104,6 @@ export default function ScatterPlot($target) {
     const baseCoord = rawBase
       .map(record => normalizeValues(record))
       .map(normRecord => convertToCoordinate(normRecord));
-    // console.log(baseCoord);
 
     baseCoord.forEach(({ x, y }, i) => {
       ctx.beginPath();

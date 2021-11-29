@@ -8,7 +8,6 @@ export default function Store() {
       res.json(),
     );
     this.records = data;
-    console.log('data: ', data);
     return this.records;
   };
 }

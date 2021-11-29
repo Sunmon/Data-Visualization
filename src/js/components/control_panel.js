@@ -12,7 +12,6 @@ export default function ControlPanel($target) {
     this.menuItems = menuItems;
     this.getColor = getColor;
 
-    console.log('dataFIlter', dataFilter);
     render(menuItems);
   };
 
