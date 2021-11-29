@@ -37,6 +37,7 @@
     "concat-map": "^0.0.1",
     "confusing-browser-globals": "^1.0.10",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "cross-spawn": "^7.0.3",
     "csv-parse": "^5.0.3",
     "debug": "^4.3.3",

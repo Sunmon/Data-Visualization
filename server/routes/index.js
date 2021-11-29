@@ -30,6 +30,7 @@ router.get('/csv', async (req, res) => {
     // console.log('record done: ', records);
     const header = records.shift();
     res.status(200).json({ header, data: records });
+    console.log('returned data');
   });
 
   parser.write(file);

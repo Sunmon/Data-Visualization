@@ -1,6 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import path from 'path';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { default as indexRouter } from './routes/index.js';
 
@@ -17,6 +18,7 @@ app.listen(port, () => {
   console.log(`server is listening at localhost:${port}`);
 });
 
+app.use(cors());
 app.use('/api', indexRouter);
 app.get('/', (req, res) => {
   res.send('Hello World!');

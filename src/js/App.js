@@ -1,5 +1,6 @@
 // import ScatterPlot from './components/scatter_plot';
-import ScatterPlot from './components/scatter_plot.js';
+import ScatterPlot from './components/scatter_plot';
+import Store from './store/store';
 
 const INITIAL_STATE = {
   xAxis: [-100, 100],
@@ -16,7 +17,10 @@ export default function App($target) {
 
   this.init = () => {
     this.scatterPlot = new ScatterPlot($canvas);
+    this.store = new Store();
+    // this.store.readCSV();
     this.setState(INITIAL_STATE);
+    this.store.init();
   };
 
   this.setState = state => {
