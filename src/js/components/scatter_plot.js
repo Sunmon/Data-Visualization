@@ -20,6 +20,7 @@ export default function ScatterPlot($target) {
   };
 
   const render = () => {
+    clearCanvas();
     drawAxes();
 
     const coordinates = this.records
@@ -27,6 +28,10 @@ export default function ScatterPlot($target) {
       .map(normRecord => convertToCoordinate(normRecord));
 
     coordinates.forEach(coor => drawDot(coor));
+  };
+
+  const clearCanvas = () => {
+    ctx.clearRect(0, 0, $canvas.width, $canvas.height);
   };
 
   const normalizeValues = entry => {
@@ -53,6 +58,8 @@ export default function ScatterPlot($target) {
   const drawAxes = () => {
     const { center } = this;
 
+    ctx.strokeStyle = 'black';
+    ctx.fillStyle = 'black';
     // x축 선
     ctx.beginPath();
     ctx.moveTo(0 + padding.x, center.y);
@@ -105,14 +112,14 @@ export default function ScatterPlot($target) {
       ctx.lineTo(x, center.y + 10);
       ctx.lineWidth = 1;
       ctx.stroke();
-      ctx.fillText(rawBase[i].x, x, center.y + 20);
+      ctx.fillText(rawBase[i].x.toFixed(2), x, center.y + 20);
 
       ctx.beginPath();
       ctx.moveTo(center.x - 10, y);
       ctx.lineTo(center.x + 10, y);
       ctx.lineWidth = 1;
       ctx.stroke();
-      ctx.fillText(rawBase[i].y, center.x + 10, y);
+      ctx.fillText(rawBase[i].y.toFixed(2), center.x + 10, y);
     });
   };
 

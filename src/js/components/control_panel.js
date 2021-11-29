@@ -1,4 +1,4 @@
-const TEMPLATE = name =>
+const MENUITEM_TEMPLATE = name =>
   `<li class='menu-item'><span><span class='icon'>●</span>${name}</span></li>`;
 
 export default function ControlPanel($target) {
@@ -36,7 +36,7 @@ export default function ControlPanel($target) {
 
   const createMenuItemTemplate = item => {
     const $template = document.createElement('template');
-    $template.innerHTML = TEMPLATE(item);
+    $template.innerHTML = MENUITEM_TEMPLATE(item);
     $template.content.querySelector('.icon').style.color = this.getColor(item);
 
     return $template;

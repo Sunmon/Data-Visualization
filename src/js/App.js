@@ -1,6 +1,7 @@
 // import ScatterPlot from './components/scatter_plot';
 import ControlPanel from './components/control_panel';
 import ScatterPlot from './components/scatter_plot';
+import AxisSelector from './components/axis_selector';
 import Store from './store/store';
 
 const COLORS = [
@@ -21,7 +22,8 @@ const INITIAL_STATE = {
   dataFilter: {
     xAxis: 'Profit Ratio',
     yAxis: 'Profit',
-    filter: 'Category',
+    // yAxis: 'Quantity',
+    filter: 'Region',
   },
   records: {
     header: [],
@@ -32,6 +34,7 @@ const INITIAL_STATE = {
 export default function App($target) {
   const $canvas = document.querySelector('#chart');
   const $controlPanel = document.querySelector('#control-panel');
+  const $axisSelector = document.querySelector('#axis-selector');
 
   this.state = {
     xAxis: [], // TODO: xAxis는 데이터의 max, min으로 바뀔 것
@@ -45,6 +48,16 @@ export default function App($target) {
     this.store = new Store();
     this.scatterPlot = new ScatterPlot($canvas);
     this.controlPanel = new ControlPanel($controlPanel);
+    this.axisSelector = new AxisSelector($axisSelector, {
+      dataFilter: this.state.dataFilter,
+      onChange: select => {
+        const state = {
+          ...this.state,
+          dataFilter: { ...this.state.dataFilter, yAxis: select },
+        };
+        this.setState(state);
+      },
+    });
     this.setState(INITIAL_STATE);
     fetchData();
   };
@@ -57,6 +70,8 @@ export default function App($target) {
     // .map(record => record.data[this.state.dataFilter.filter])
 
     const state = { ...this.state, records, colors };
+    resizeCanvas();
+
     // console.log('record color: ', colors('Furniture'));
     // const colors = records.map(record => record.data[this.state.dataFilter.filter]).forEach()
 
@@ -76,7 +91,6 @@ export default function App($target) {
 
   this.setState = state => {
     this.state = state;
-    resizeCanvas();
 
     console.log('app: ', state.records);
     if (!state.records?.header?.length) return;
@@ -121,6 +135,8 @@ export default function App($target) {
       menuItems: valueItems,
       getColor: state.colors,
     });
+
+    this.axisSelector.setState({ dataFilter: this.state.dataFilter });
   };
 
   /**
@@ -169,10 +185,19 @@ export default function App($target) {
     console.log($canvas.width, width, $canvas.clientWidth, dpr);
 
     const needResize = $canvas.width !== width || $canvas.height !== height;
+    console.log(
+      'needResize? ',
+      needResize,
+      $canvas.width,
+      width,
+      ',',
+      $canvas.height,
+      height,
+    );
     if (needResize) {
       $canvas.width = width;
       $canvas.height = height;
-      // ctx.scale(dpr, dpr);
+      // $canvas.getContext('2d').scale(dpr, dpr);
       console.log(
         '$width, width, clientWidth: ',
         $canvas.width,
